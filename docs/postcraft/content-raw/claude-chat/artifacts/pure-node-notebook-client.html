@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Node.js Notebook</title>
+    <style>
+        .cell {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .output {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+        }
+        #addCell {
+            margin: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="notebook">
+        <div class="cell">
+            <textarea rows="4" cols="50"></textarea>
+            <button onclick="executeCell(this)">Run</button>
+            <div class="output"></div>
+        </div>
+    </div>
+    <button id="addCell" onclick="addNewCell()">Add Cell</button>
+
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}`);
+        
+        function executeCell(button) {
+            const cell = button.parentElement;
+            const code = cell.querySelector('textarea').value;
+            const output = cell.querySelector('.output');
+            
+            ws.send(code);
+            output.textContent = 'Running...';
+            
+            ws.onmessage = (event) => {
+                const response = JSON.parse(event.data);
+                if (response.status === 'error') {
+                    output.textContent = `Error: ${response.error}`;
+                } else {
+                    output.textContent = JSON.stringify(response.result, null, 2);
+                }
+            };
+        }
+
+        function addNewCell() {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.innerHTML = `
+                <textarea rows="4" cols="50"></textarea>
+                <button onclick="executeCell(this)">Run</button>
+                <div class="output"></div>
+            `;
+            document.getElementById('notebook').appendChild(cell);
+        }
+    </script>
+</body>
+</html>
