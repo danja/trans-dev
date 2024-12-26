@@ -6,3 +6,7 @@
 3.
 
 ## 2. Requirements doc
+
+VM2 has been superceded by https://github.com/laverdet/isolated-vm
+
+check https://github.com/fermyon/spin
